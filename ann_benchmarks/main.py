@@ -163,6 +163,7 @@ def filter_already_run_definitions(
             for query_args in (definition.query_argument_groups or [[]])
             if force or not os.path.exists(build_result_filepath(dataset, count, definition, query_args, batch))
         ]
+   #     logger.info(f"not_ye_run : {not_yet_run}begin  {definition} end")
 
         if not_yet_run:
             definition = replace(definition, query_argument_groups=not_yet_run) if definition.query_argument_groups else definition
@@ -319,6 +320,7 @@ def main():
     )
     random.shuffle(definitions)
 
+    logger.info(f"running only {definitions}")
     definitions = filter_already_run_definitions(definitions, 
         dataset=args.dataset, 
         count=args.count, 
@@ -330,6 +332,7 @@ def main():
         logger.info(f"running only {args.algorithm}")
         definitions = [d for d in definitions if d.algorithm == args.algorithm]
 
+    logger.info(f"args.local: {args.local} {definitions}")
     if not args.local:
         definitions = filter_by_available_docker_images(definitions)
     else:
@@ -337,8 +340,14 @@ def main():
             check_module_import_and_constructor, definitions
         ))
 
+    #logger.info(f"Order: {definitions}")
     definitions = filter_disabled_algorithms(definitions) if not args.run_disabled else definitions
+    if len(definitions) == 0:
+        raise Exception("error1: {definitions}")
+
     definitions = limit_algorithms(definitions, args.max_n_algorithms)
+    if len(definitions) == 0:
+        raise Exception("error2")
 
     if len(definitions) == 0:
         raise Exception("Nothing to run")

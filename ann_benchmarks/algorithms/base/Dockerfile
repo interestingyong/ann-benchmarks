@@ -6,6 +6,6 @@ RUN python --version | grep 'Python 3.10'
 
 WORKDIR /home/app
 COPY requirements.txt run_algorithm.py ./
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 ENTRYPOINT ["python", "-u", "run_algorithm.py"]
